@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Carrom Board Game</title>
+    <!-- Fonts for AAA look -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Raleway:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="./assets/index-C4rhac7N.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DlBXtIu9.css">
+  </head>
+  <body>
+    <div id="game-container">
+      <!-- Dynamic Top Scoreboard -->
+      <div id="scoreboard" class="scoreboard">
+          <!-- Injected by UIController -->
+      </div>
+
+      <!-- The Canvas Container -->
+      <div id="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- In-game overlays -->
+        <div id="shot-info">
+          <div>Power: <span id="power-display">0%</span></div>
+          <div class="power-bar-bg"><div id="power-bar-fill"></div></div>
+          <div>Angle: <span id="angle-display">0&deg;</span></div>
+        </div>
+
+        <div id="foul-splash" class="hidden">FOUL!</div>
+        <div id="queen-splash" class="hidden">👑 QUEEN POCKETED!</div>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div id="hud-controls-bar" class="hud-panel">
+        <div class="hud-controls" style="margin: 0 auto;">
+          <button class="icon-btn" id="btn-settings">⚙️ Settings</button>
+          <button class="icon-btn" id="btn-restart">🔄 Restart</button>
+          <button class="icon-btn" id="btn-pause">⏸ Pause</button>
+        </div>
+      </div>
+
+      <!-- UI Screens Overlay -->
+      <div id="ui-layer" class="hidden">
+        <!-- Menus will go here -->
+      </div>
+    </div>
+
+    <!-- Main Entry Point -->
+  </body>
+</html>

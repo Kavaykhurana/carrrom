@@ -1,6 +1,26 @@
 import { BoardGeometry as Geo } from './BoardGeometry.js';
 import { activeTheme as theme } from './BoardTheme.js';
 
+// Ensure roundRect support for older browsers
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
+        const radius = { tl: 0, tr: 0, br: 0, bl: 0, ...r };
+        this.beginPath();
+        this.moveTo(x + radius.tl, y);
+        this.lineTo(x + w - radius.tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + radius.tr);
+        this.lineTo(x + w, y + h - radius.br);
+        this.quadraticCurveTo(x + w, y + h, x + w - radius.br, y + h);
+        this.lineTo(x + radius.bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - radius.bl);
+        this.lineTo(x, y + radius.tl);
+        this.quadraticCurveTo(x, y, x + radius.tl, y);
+        this.closePath();
+        return this;
+    };
+}
+
 export class BoardRenderer {
     constructor() {
         this.virtualSize = 900;
