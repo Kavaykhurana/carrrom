@@ -56,15 +56,18 @@ export class TurnManager {
             this._showSplash('foul-splash');
         } else if (piece.type === 'queen') {
             this._showSplash('queen-splash');
+            // Queen awards 50 points
+            this.engine.scoreSystem.addPoints(this.activePlayer, 50);
         } else if (piece.type === 'white' || piece.type === 'black') {
             // Check if player has a color, claim it if unassigned
             if (!this.activePlayer.color) {
                 this.activePlayer.color = piece.type;
             }
             
-            // Give live points
+            // Give points based on piece color: white=20, black=10
             if (piece.type === this.activePlayer.color) {
-                this.engine.scoreSystem.addPoints(this.activePlayer, 10);
+                const pts = piece.type === 'white' ? 20 : 10;
+                this.engine.scoreSystem.addPoints(this.activePlayer, pts);
             }
         }
         

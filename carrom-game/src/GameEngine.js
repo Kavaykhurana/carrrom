@@ -71,7 +71,6 @@ export class GameEngine {
         this.inputManager.events.onStart = (pos) => {
             if (this.stateMachine.currentState === 'PLAYING') {
                 this.audioManager.resume();
-                this.audioManager.startAmbient(); // Professional ambient layer
                 const activeLine = this.turnManager.activePlayer.baseline;
                 this.aimingSystem.handleStart(pos, activeLine);
             }

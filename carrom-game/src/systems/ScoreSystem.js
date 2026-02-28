@@ -18,14 +18,17 @@ export class ScoreSystem {
     }
 
     evaluateBoardEnd(winner, loser, winnerCoveredQueen) {
-        // Count loser's remaining pieces on board
-        const piecesOnBoard = this.engine.physicsWorld.bodies.filter(b => b.type === loser.color).length;
+        // Count loser's remaining pieces with correct values
+        const remainingPieces = this.engine.physicsWorld.bodies.filter(b => b.type === loser.color);
         
-        let boardPoints = piecesOnBoard * 10; // 10 points per opponent piece
+        let boardPoints = 0;
+        for (const piece of remainingPieces) {
+            boardPoints += piece.type === 'white' ? 20 : 10;
+        }
 
         // Queen points bonus
         if (winnerCoveredQueen) {
-            boardPoints += 30;
+            boardPoints += 50;
         }
 
         this.addPoints(winner, boardPoints);

@@ -8,43 +8,6 @@ export class AudioManager {
         this.masterGain = this.ctx.createGain();
         this.masterGain.gain.value = 0.4;
         this.masterGain.connect(this.ctx.destination);
-
-        // BG Music Gain
-        this.bgGain = this.ctx.createGain();
-        this.bgGain.gain.value = 0; // Start muted, fade in on interaction
-        this.bgGain.connect(this.masterGain);
-        
-        this.bgPlaying = false;
-    }
-
-    startAmbient() {
-        if (this.bgPlaying) return;
-        this.bgPlaying = true;
-        
-        // Synthesize a very subtle ambient hum/pad
-        const osc1 = this.ctx.createOscillator();
-        const osc2 = this.ctx.createOscillator();
-        const filter = this.ctx.createBiquadFilter();
-        
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(40, this.ctx.currentTime);
-        
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(40.5, this.ctx.currentTime); // Slight detune for phasing
-        
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(200, this.ctx.currentTime);
-        
-        osc1.connect(filter);
-        osc2.connect(filter);
-        filter.connect(this.bgGain);
-        
-        osc1.start();
-        osc2.start();
-        
-        // Professional fade-in
-        this.bgGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        this.bgGain.gain.linearRampToValueAtTime(0.06, this.ctx.currentTime + 4);
     }
 
     resume() {
@@ -53,28 +16,26 @@ export class AudioManager {
         }
     }
 
-    // A simple synthesized pop for collisions
+    // A crisp wood-knock sound for piece collisions
     playCollision(intensity) {
         this.resume();
         
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
-        // Adjust tone based on intensity
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(400 + (intensity * 400), this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.08);
         
-        // Volume based on intensity (0.0 to 1.0)
-        let vol = Math.min(intensity * 0.5 + 0.1, 1.0);
+        let vol = Math.min(intensity * 0.4 + 0.05, 0.6);
         gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
         
         osc.connect(gain);
         gain.connect(this.masterGain);
         
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.1);
+        osc.stop(this.ctx.currentTime + 0.08);
     }
 
     playPocketed(type) {
@@ -87,46 +48,46 @@ export class AudioManager {
             // Chime for queen
             osc.type = 'sine';
             osc.frequency.setValueAtTime(880, this.ctx.currentTime); 
-            osc.frequency.setValueAtTime(1108, this.ctx.currentTime + 0.1); // C#
-            osc.frequency.setValueAtTime(1318, this.ctx.currentTime + 0.2); // E
-            
-            gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
-            
-            osc.connect(gain);
-            gain.connect(this.masterGain);
-            
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.6);
-            
-        } else if (type === 'striker') {
-            // Error buzzer
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-            osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.3);
+            osc.frequency.setValueAtTime(1108, this.ctx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(1318, this.ctx.currentTime + 0.2);
             
             gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
+            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
             
             osc.connect(gain);
             gain.connect(this.masterGain);
             
             osc.start();
-            osc.stop(this.ctx.currentTime + 0.3);
+            osc.stop(this.ctx.currentTime + 0.5);
+            
+        } else if (type === 'striker') {
+            // Error buzzer for foul
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+            
+            gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.25);
+            
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.25);
         } else {
-            // Default piece "plop"
+            // Satisfying "plop" for regular piece
             osc.type = 'sine';
             osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.3);
+            osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.2);
             
-            gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
             
             osc.connect(gain);
             gain.connect(this.masterGain);
             
             osc.start();
-            osc.stop(this.ctx.currentTime + 0.3);
+            osc.stop(this.ctx.currentTime + 0.2);
         }
     }
 }
