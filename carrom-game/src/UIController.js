@@ -78,7 +78,11 @@ export class UIController {
     
     updateTurnHUD(activeId) {
         const players = document.querySelectorAll('.sb-player');
-        players.forEach(el => el.classList.remove('active'));
+        players.forEach(el => {
+            el.classList.remove('active');
+            const status = el.querySelector('.turn-status');
+            if (status) status.innerText = '';
+        });
         
         const active = document.getElementById(`sb-p${activeId}`);
         if(active) {
@@ -113,15 +117,19 @@ export class UIController {
     }
 
     handleRestart() {
-        location.reload(); // Simple absolute reload for now
+        location.reload();
     }
 
     handlePauseToggle() {
         if (this.engine.isRunning) {
             this.engine.pause();
-            // Show simple pause overlay
             this.domMenuLayer.classList.remove('hidden');
-            this.domMenuLayer.innerHTML = `<h1 style="color:white; font-size: 4rem;">PAUSED</h1><br><button id="btn-resume" style="padding: 10px 20px; font-size: 1.5rem; margin-top:20px;">Resume</button>`;
+            this.domMenuLayer.innerHTML = `
+                <div class="pause-card">
+                    <h1 class="pause-title">⏸ PAUSED</h1>
+                    <button id="btn-resume" class="premium-btn">Resume Game</button>
+                </div>
+            `;
             document.getElementById('btn-resume').addEventListener('click', () => {
                 this.domMenuLayer.classList.add('hidden');
                 this.engine.start();
@@ -132,22 +140,21 @@ export class UIController {
     showBoardEnd(players, winner, points) {
         this.domMenuLayer.classList.remove('hidden');
         
-        let scoreHTML = `<h1 style="color:var(--text-accent); font-size:3rem; margin-bottom: 20px;">BOARD COMPLETE</h1>`;
+        let scoreHTML = `<h1 class="result-title">BOARD COMPLETE</h1>`;
         if (winner && points) {
-            scoreHTML += `<h2 style="color:white; margin-bottom: 20px;">${winner.name} wins the board (+${points} pts)</h2>`;
+            scoreHTML += `<h2 class="result-subtitle">${winner.name} wins the board (+${points} pts)</h2>`;
         } else {
-            scoreHTML += `<h2 style="color:white; margin-bottom: 20px;">Draw / No points awarded</h2>`;
+            scoreHTML += `<h2 class="result-subtitle">Draw / No points awarded</h2>`;
         }
         
-        scoreHTML += `<div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">`;
+        scoreHTML += `<div class="result-scores">`;
         players.forEach(p => {
-            scoreHTML += `<div style="font-size: 1.5rem; color: #fff;">Player ${p.id} Score: <span style="color:var(--text-accent); font-weight:bold;">${p.score}</span></div>`;
+            scoreHTML += `<div class="result-score-line">Player ${p.id} Score: <span class="score-value">${p.score}</span></div>`;
         });
         scoreHTML += `</div>`;
         
-        this.domMenuLayer.innerHTML = `<div style="background: rgba(40, 20, 10, 0.95); padding: 50px; border-radius: 20px; text-align: center; border: 2px solid #FFD700; box-shadow: 0 10px 50px rgba(0,0,0,0.8);">${scoreHTML}</div>`;
+        this.domMenuLayer.innerHTML = `<div class="result-card">${scoreHTML}</div>`;
         
-        // Hide it automatically after 2.5 seconds (coordinated with Engine reset timer)
         setTimeout(() => {
             this.domMenuLayer.classList.add('hidden');
         }, 2500);
@@ -156,19 +163,19 @@ export class UIController {
     showGameOver(winner, players) {
         this.domMenuLayer.classList.remove('hidden');
         
-        let scoreHTML = `<h1 style="color:var(--text-accent); font-size:4rem; margin-bottom: 20px;">CHAMPION!</h1>`;
-        scoreHTML += `<h2 style="color:white; margin-bottom: 20px;">${winner.name} has reached the winning score.</h2>`;
+        let scoreHTML = `<h1 class="champion-title">👑 CHAMPION!</h1>`;
+        scoreHTML += `<h2 class="result-subtitle">${winner.name} has reached the winning score.</h2>`;
         
-        scoreHTML += `<div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; margin-bottom: 30px;">`;
+        scoreHTML += `<div class="result-scores">`;
         players.forEach(p => {
-            const isWinner = p === winner ? " 👑" : "";
-            scoreHTML += `<div style="font-size: 1.5rem; color: #fff;">Player ${p.id} Final Score: <span style="color:var(--text-accent); font-weight:bold;">${p.score}</span>${isWinner}</div>`;
+            const crown = p === winner ? ' 👑' : '';
+            scoreHTML += `<div class="result-score-line">Player ${p.id} Final Score: <span class="score-value">${p.score}</span>${crown}</div>`;
         });
         scoreHTML += `</div>`;
         
-        scoreHTML += `<button id="btn-restart-end" style="padding: 15px 30px; background: linear-gradient(to bottom, #C8860A, #A0680A); border: 2px solid #FFD700; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.2rem;">Play Again</button>`;
+        scoreHTML += `<div class="settings-actions"><button id="btn-restart-end" class="premium-btn">Play Again</button></div>`;
         
-        this.domMenuLayer.innerHTML = `<div style="background: rgba(40, 20, 10, 0.95); padding: 50px; border-radius: 20px; text-align: center; border: 2px solid #FFD700; box-shadow: 0 10px 50px rgba(0,0,0,0.8);">${scoreHTML}</div>`;
+        this.domMenuLayer.innerHTML = `<div class="result-card">${scoreHTML}</div>`;
         
         document.getElementById('btn-restart-end').addEventListener('click', () => {
             location.reload();
@@ -176,7 +183,35 @@ export class UIController {
     }
 
     handleSettings() {
-        // Can build full settings modal later
-        alert(`Settings\nTheme: ${this.storage.data.settings.theme}\nVolume: ${this.storage.data.settings.volume}`);
+        this.engine.pause();
+        this.domMenuLayer.classList.remove('hidden');
+        
+        const settings = this.storage.data.settings;
+        
+        this.domMenuLayer.innerHTML = `
+            <div class="settings-card">
+                <h1 class="settings-title">⚙️ Settings</h1>
+                <div class="settings-row">
+                    <span class="settings-label">Theme</span>
+                    <span class="settings-value">${settings.theme}</span>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label">Volume</span>
+                    <span class="settings-value">${Math.round(settings.volume * 100)}%</span>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label">Difficulty</span>
+                    <span class="settings-value">${settings.difficulty}</span>
+                </div>
+                <div class="settings-actions">
+                    <button id="btn-close-settings" class="premium-btn">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+            this.domMenuLayer.classList.add('hidden');
+            this.engine.start();
+        });
     }
 }
