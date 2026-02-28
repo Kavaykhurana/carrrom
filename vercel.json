@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd carrom-game && npm install && npm run build",
+  "outputDirectory": "carrom-game/dist",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
