@@ -25,9 +25,22 @@ export class BoardRenderer {
     constructor() {
         this.virtualSize = 900;
         this.center = { x: 450, y: 450 };
+        
+        // Cache for static background elements (Frame, Surface, Lines, Pockets)
+        this.cacheCanvas = document.createElement('canvas');
+        this.cacheCanvas.width = this.virtualSize;
+        this.cacheCanvas.height = this.virtualSize;
+        this.cacheCtx = this.cacheCanvas.getContext('2d');
+        
+        this.isCached = false;
     }
 
-    render(ctx) {
+    _prerender() {
+        if (this.isCached) return;
+        
+        const ctx = this.cacheCtx;
+        ctx.clearRect(0, 0, this.virtualSize, this.virtualSize);
+        
         this.drawOuterFrame(ctx);
         this.drawSurface(ctx);
         this.drawPockets(ctx);
@@ -36,6 +49,17 @@ export class BoardRenderer {
         ctx.translate(this.center.x, this.center.y);
         this.drawLines(ctx);
         ctx.restore();
+        
+        this.isCached = true;
+    }
+
+    render(ctx) {
+        if (!this.isCached) {
+            this._prerender();
+        }
+        
+        // Final background draw call
+        ctx.drawImage(this.cacheCanvas, 0, 0);
     }
 
     drawOuterFrame(ctx) {

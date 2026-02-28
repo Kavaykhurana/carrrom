@@ -6,8 +6,44 @@ export class AudioManager {
         
         // Master Volume
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.5;
+        this.masterGain.gain.value = 0.4;
         this.masterGain.connect(this.ctx.destination);
+
+        // BG Music Gain
+        this.bgGain = this.ctx.createGain();
+        this.bgGain.gain.value = 0; // Start muted, fade in on interaction
+        this.bgGain.connect(this.masterGain);
+        
+        this.bgPlaying = false;
+    }
+
+    startAmbient() {
+        if (this.bgPlaying) return;
+        this.bgPlaying = true;
+        
+        // Synthesize a very subtle ambient hum/pad
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(40, this.ctx.currentTime);
+        
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(40.5, this.ctx.currentTime); // Slight detune for phasing
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, this.ctx.currentTime);
+        
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(this.bgGain);
+        
+        osc1.start();
+        osc2.start();
+        
+        // Fade in
+        this.bgGain.gain.linearRampToValueAtTime(0.05, this.ctx.currentTime + 5);
     }
 
     resume() {

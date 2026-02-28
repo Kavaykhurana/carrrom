@@ -3,7 +3,7 @@ import { BoardGeometry as Geo } from '../board/BoardGeometry.js';
 export class PhysicsWorld {
     constructor() {
         this.bodies = [];
-        this.velocityIterations = 20; // High precision collision solver
+        this.velocityIterations = 15; // Balanced precision/speed
         
         this.onCollision = null; // Callback for audio/particles
         
@@ -21,23 +21,27 @@ export class PhysicsWorld {
     }
 
     step(dt) {
+        const activeBodies = this.bodies.filter(b => !b.isSleeping || b.type === 'striker');
+        
         // 1. Update positions
         for (let body of this.bodies) {
             body.update(dt);
         }
 
+        if (activeBodies.length === 0) return;
+
         // 2. Resolve Collisions (Iterative solver)
         for (let iter = 0; iter < this.velocityIterations; iter++) {
-            this._resolveBodyCollisions();
-            this._resolveWallCollisions();
+            this._resolveBodyCollisions(activeBodies);
+            this._resolveWallCollisions(activeBodies);
         }
     }
 
-    _resolveBodyCollisions() {
-        for (let i = 0; i < this.bodies.length; i++) {
-            const bodyA = this.bodies[i];
-            for (let j = i + 1; j < this.bodies.length; j++) {
-                const bodyB = this.bodies[j];
+    _resolveBodyCollisions(bodies) {
+        for (let i = 0; i < bodies.length; i++) {
+            const bodyA = bodies[i];
+            for (let j = i + 1; j < bodies.length; j++) {
+                const bodyB = bodies[j];
 
                 // Collision Detection: Distance squared comparison
                 const diffX = bodyB.pos.x - bodyA.pos.x;
@@ -111,8 +115,8 @@ export class PhysicsWorld {
         }
     }
 
-    _resolveWallCollisions() {
-        for (let body of this.bodies) {
+    _resolveWallCollisions(bodies) {
+        for (let body of bodies) {
             // Left Wall
             if (body.pos.x - body.radius < this.boardBounds.minX) {
                 body.pos.x = this.boardBounds.minX + body.radius;

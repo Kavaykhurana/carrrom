@@ -18,35 +18,50 @@ export class CarromPiece extends RigidBody {
     render(ctx) {
         if (!this.isActive) return;
         
-        // Shadow for the base disk
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
+        const { x, y } = this.pos;
+        const r = this.radius;
 
-        // Draw rings from outside in
-        for (let i = 0; i < this.rings.length; i++) {
+        // 1. High-fidelity drop shadow (only on outer ring)
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
+
+        // Base ring with shadow
+        const [outerRMult, outerColor] = this.rings[0];
+        ctx.fillStyle = outerColor;
+        ctx.beginPath();
+        ctx.arc(x, y, r * outerRMult, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // 2. Draw interior rings (No shadow to prevent blur artifacts)
+        for (let i = 1; i < this.rings.length; i++) {
             const [rMult, color] = this.rings[i];
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(this.pos.x, this.pos.y, this.radius * rMult, 0, Math.PI * 2);
+            ctx.arc(x, y, r * rMult, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Turn off shadow for inner elements
-            ctx.shadowColor = 'transparent';
         }
 
-        // Highlight for 3D premium effect overlay
-        const grad = ctx.createLinearGradient(
-            this.pos.x - this.radius, this.pos.y - this.radius,
-            this.pos.x + this.radius, this.pos.y + this.radius
+        // 3. Premium Top-down Lighting Gloss
+        const shine = ctx.createRadialGradient(
+            x - r * 0.3, y - r * 0.3, r * 0.1,
+            x, y, r
         );
-        grad.addColorStop(0, this.highlight);
-        grad.addColorStop(1, 'transparent');
+        shine.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+        shine.addColorStop(0.4, 'rgba(255, 255, 255, 0.1)');
+        shine.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
         
-        ctx.fillStyle = grad;
+        ctx.fillStyle = shine;
         ctx.beginPath();
-        ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
+
+        // 4. Fine sub-pixel stroke for definition
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
 }

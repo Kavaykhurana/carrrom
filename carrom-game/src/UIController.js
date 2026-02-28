@@ -21,15 +21,15 @@ export class UIController {
     _buildMainMenu() {
         this.domMenuLayer.classList.remove('hidden');
         this.domMenuLayer.innerHTML = `
-            <div style="background: rgba(40, 20, 10, 0.95); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #FFD700; box-shadow: 0 10px 50px rgba(0,0,0,0.8); min-width: 400px;">
-                <h1 style="font-family: var(--font-title); font-size: 3rem; margin-bottom: 5px; color: #FFF; text-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);">CARROM</h1>
-                <h3 style="color: var(--text-accent); margin-bottom: 30px; letter-spacing: 5px; font-weight: normal;">CHAMPIONSHIP (LOCAL)</h3>
+            <div class="menu-card">
+                <h1 class="menu-title">CARROM</h1>
+                <h3 class="menu-subtitle">CHAMPIONSHIP (LOCAL)</h3>
                 
-                <p style="margin-bottom: 20px; color: #fff;">Select Number of Players:</p>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="menu-btn" data-players="2" style="flex:1; padding: 15px; background: linear-gradient(to bottom, #C8860A, #A0680A); border: 2px solid #FFD700; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.2rem;">2 Player</button>
-                    <button class="menu-btn" data-players="3" style="flex:1; padding: 15px; background: linear-gradient(to bottom, #C8860A, #A0680A); border: 2px solid #FFD700; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.2rem;">3 Player</button>
-                    <button class="menu-btn" data-players="4" style="flex:1; padding: 15px; background: linear-gradient(to bottom, #C8860A, #A0680A); border: 2px solid #FFD700; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.2rem;">4 Player</button>
+                <p class="menu-label">Select Number of Players:</p>
+                <div class="menu-actions">
+                    <button class="menu-btn premium-btn" data-players="2">2 Player</button>
+                    <button class="menu-btn premium-btn" data-players="3">3 Player</button>
+                    <button class="menu-btn premium-btn" data-players="4">4 Player</button>
                 </div>
             </div>
         `;
@@ -62,9 +62,9 @@ export class UIController {
             html += `
                 <div id="sb-p${i}" class="sb-player">
                     <div class="sb-name">Player ${i}</div>
-                    <div class="turn-status" style="font-size: 0.8rem; font-weight: bold; height: 1.2rem; margin-top: 2px;"></div>
-                    <div style="font-size: 0.9rem; margin-top: 2px; color: #fff;">Score: <span class="sb-score" id="score-p${i}">0</span></div>
-                    <div class="pieces-container" id="pieces-p${i}" style="margin-top: 5px; min-height: 14px; gap: 4px; justify-content: center;"></div>
+                    <div class="turn-status"></div>
+                    <div class="score-row">Score: <span class="sb-score" id="score-p${i}">0</span></div>
+                    <div class="pieces-container" id="pieces-p${i}"></div>
                 </div>
             `;
         }
@@ -77,30 +77,14 @@ export class UIController {
     
     updateTurnHUD(activeId) {
         const players = document.querySelectorAll('.sb-player');
-        players.forEach(el => {
-            el.style.opacity = '0.5';
-            el.style.transform = 'scale(0.9)';
-            el.style.border = 'none';
-            const status = el.querySelector('.turn-status');
-            if(status) {
-                status.innerText = '';
-            }
-        });
+        players.forEach(el => el.classList.remove('active'));
         
         const active = document.getElementById(`sb-p${activeId}`);
         if(active) {
-            active.style.opacity = '1';
-            active.style.transform = 'scale(1.1)';
-            active.style.border = '2px solid #FFD700'; /* Gold */
-            active.style.borderRadius = '10px';
-            active.style.padding = '5px 15px';
-            active.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.6)';
-            
+            active.classList.add('active');
             const status = active.querySelector('.turn-status');
             if(status) {
                 status.innerText = 'YOUR TURN';
-                status.style.color = '#FFD700';
-                status.style.textShadow = '0 0 5px rgba(255,215,0,0.8)';
             }
         }
     }
