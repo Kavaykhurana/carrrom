@@ -21,14 +21,14 @@ export class CarromPiece extends RigidBody {
         const { x, y } = this.pos;
         const r = this.radius;
 
-        // 1. High-fidelity drop shadow (only on outer ring)
+        // 1. High-fidelity drop shadow
         ctx.save();
         ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 3;
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 4;
+        ctx.shadowOffsetY = 4;
 
-        // Base ring with shadow
+        // Base disk
         const [outerRMult, outerColor] = this.rings[0];
         ctx.fillStyle = outerColor;
         ctx.beginPath();
@@ -36,7 +36,7 @@ export class CarromPiece extends RigidBody {
         ctx.fill();
         ctx.restore();
 
-        // 2. Draw interior rings (No shadow to prevent blur artifacts)
+        // 2. Draw interior details
         for (let i = 1; i < this.rings.length; i++) {
             const [rMult, color] = this.rings[i];
             ctx.fillStyle = color;
@@ -45,23 +45,26 @@ export class CarromPiece extends RigidBody {
             ctx.fill();
         }
 
-        // 3. Premium Top-down Lighting Gloss
+        // 3. 3D Bevel/Lighting (Top-left Highlight)
         const shine = ctx.createRadialGradient(
-            x - r * 0.3, y - r * 0.3, r * 0.1,
-            x, y, r
+            x - r * 0.4, y - r * 0.4, r * 0.05,
+            x, y, r * 1.2
         );
-        shine.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
-        shine.addColorStop(0.4, 'rgba(255, 255, 255, 0.1)');
-        shine.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        shine.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+        shine.addColorStop(0.3, 'rgba(255, 255, 255, 0.1)');
+        shine.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
+        shine.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
         
         ctx.fillStyle = shine;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // 4. Fine sub-pixel stroke for definition
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        // 4. Subtle stroke for edge definition
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.stroke();
     }
 }

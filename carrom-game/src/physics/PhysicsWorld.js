@@ -21,27 +21,29 @@ export class PhysicsWorld {
     }
 
     step(dt) {
-        const activeBodies = this.bodies.filter(b => !b.isSleeping || b.type === 'striker');
-        
         // 1. Update positions
         for (let body of this.bodies) {
             body.update(dt);
         }
 
-        if (activeBodies.length === 0) return;
-
         // 2. Resolve Collisions (Iterative solver)
         for (let iter = 0; iter < this.velocityIterations; iter++) {
-            this._resolveBodyCollisions(activeBodies);
-            this._resolveWallCollisions(activeBodies);
+            this._resolveBodyCollisions();
+            this._resolveWallCollisions();
         }
     }
 
-    _resolveBodyCollisions(bodies) {
-        for (let i = 0; i < bodies.length; i++) {
+    _resolveBodyCollisions() {
+        const bodies = this.bodies;
+        const len = bodies.length;
+        for (let i = 0; i < len; i++) {
             const bodyA = bodies[i];
-            for (let j = i + 1; j < bodies.length; j++) {
+            for (let j = i + 1; j < len; j++) {
                 const bodyB = bodies[j];
+
+                // PERFORMANCE: Skip if both are sleeping.
+                // One must be active for interaction to matter.
+                if (bodyA.isSleeping && bodyB.isSleeping) continue;
 
                 // Collision Detection: Distance squared comparison
                 const diffX = bodyB.pos.x - bodyA.pos.x;
@@ -115,8 +117,9 @@ export class PhysicsWorld {
         }
     }
 
-    _resolveWallCollisions(bodies) {
-        for (let body of bodies) {
+    _resolveWallCollisions() {
+        for (let body of this.bodies) {
+            if (body.isSleeping) continue;
             // Left Wall
             if (body.pos.x - body.radius < this.boardBounds.minX) {
                 body.pos.x = this.boardBounds.minX + body.radius;

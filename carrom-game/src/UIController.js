@@ -45,11 +45,12 @@ export class UIController {
                 this._buildScoreboard(count);
                 
                 // Transition state to PLAYING
-                this.engine.stateMachine.currentState = 'MENU'; // Ensure we can transition
                 this.engine.stateMachine.setState('PLAYING');
                 
-                // Start game loop
-                this.engine.isRunning = false; // Reset so start() works
+                // Ensure starting from a clean execution state
+                if (this.engine.isRunning) {
+                    this.engine.isRunning = false;
+                }
                 this.engine.start();
             });
         });

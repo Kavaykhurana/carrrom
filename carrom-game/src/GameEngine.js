@@ -219,8 +219,8 @@ export class GameEngine {
         this.boardRenderer.render(this.ctx);
         
         // 2. Draw Aiming (under pieces)
-        if (this.isBoardSleeping()) {
-            this.aimingSystem.render(this.ctx); // Render aim line for any active human
+        if (this.stateMachine.currentState === 'PLAYING') {
+            this.aimingSystem.render(this.ctx); 
         }
         
         // 3. Draw Pieces (sorted so striker is on top)

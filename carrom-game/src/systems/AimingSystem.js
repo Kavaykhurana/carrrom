@@ -110,7 +110,7 @@ export class AimingSystem {
             const powerRatio = Math.min(dist / this.maxPowerDist, 1.0);
             this.currentPower = powerRatio;
             
-            if (this.currentPower > 0.05) {
+            if (this.currentPower > 0.02) { // More sensitive threshold
                 const launchVel = new Vector2(this.aimRefDir.x, this.aimRefDir.y);
                 launchVel.mult(this.currentPower * this.maxVelocity);
                 this.predictionData = this.predictor.predict(this.striker, launchVel);
@@ -124,7 +124,7 @@ export class AimingSystem {
 
     handleEnd(pos, startPos) {
         if (this.state === 'AIMING') {
-            if (this.currentPower > 0.05) {
+            if (this.currentPower > 0.02) {
                 // Fire the striker!
                 const launchVel = new Vector2(this.aimRefDir.x, this.aimRefDir.y);
                 launchVel.mult(this.currentPower * this.maxVelocity);

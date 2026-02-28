@@ -42,8 +42,9 @@ export class AudioManager {
         osc1.start();
         osc2.start();
         
-        // Fade in
-        this.bgGain.gain.linearRampToValueAtTime(0.05, this.ctx.currentTime + 5);
+        // Professional fade-in
+        this.bgGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        this.bgGain.gain.linearRampToValueAtTime(0.06, this.ctx.currentTime + 4);
     }
 
     resume() {
